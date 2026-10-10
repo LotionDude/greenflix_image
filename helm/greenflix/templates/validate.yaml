@@ -1,0 +1,8 @@
+{{- if ne (int .Values.replicaCount) 1 }}{{ fail "SQLite requires exactly one replica" }}{{ end -}}
+{{- if not (has .Values.config.journalMode (list "DELETE" "WAL")) }}{{ fail "journalMode must be DELETE or WAL" }}{{ end -}}
+{{- if and (eq .Values.config.journalMode "WAL") (not .Values.config.walVerified) }}{{ fail "WAL requires verified PVC storage" }}{{ end -}}
+{{- if not (has .Values.persistence.accessMode (list "ReadWriteOncePod" "ReadWriteOnce")) }}{{ fail "Use RWOP or verified fenced RWO storage" }}{{ end -}}
+{{- $_ := required "admin.existingSecret is required; hashes must stay outside Helm values" .Values.admin.existingSecret -}}
+{{- if .Values.route.enabled }}
+{{- $_ := required "route.host is required when Route is enabled" .Values.route.host -}}
+{{- end }}

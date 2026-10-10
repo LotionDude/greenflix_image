@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "replicaCount": {"type": "integer", "const": 1},
+    "admin": {"type": "object", "additionalProperties": false, "required": ["existingSecret", "passwordHashKey"], "properties": {
+      "existingSecret": {"type": "string", "minLength": 1}, "passwordHashKey": {"type": "string", "minLength": 1}
+    }},
+    "config": {"type": "object", "additionalProperties": false, "properties": {
+      "existingConfigMap": {"type": "string"}, "journalMode": {"enum": ["DELETE", "WAL"]}, "walVerified": {"type": "boolean"},
+      "busyTimeoutMs": {"type": "integer", "minimum": 1, "maximum": 60000}, "poolSize": {"type": "integer", "minimum": 1, "maximum": 4}
+    }},
+    "route": {"type": "object", "properties": {
+      "enabled": {"type": "boolean"},
+      "host": {"type": "string"},
+      "tls": {"type": "object", "properties": {
+        "enabled": {"type": "boolean"},
+        "insecureEdgeTerminationPolicy": {"enum": ["Redirect", "Allow", "None"]}
+      }}
+    }, "if": {"properties": {"enabled": {"const": true}}}, "then": {
+      "properties": {"host": {"minLength": 1, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$"}}
+    }},
+    "persistence": {"type": "object", "properties": {"accessMode": {"enum": ["ReadWriteOncePod", "ReadWriteOnce"]}}},
+    "podSecurityContext": {"type": "object", "additionalProperties": false, "properties": {
+      "fsGroup": {"type": "integer", "minimum": 1}, "fsGroupChangePolicy": {"enum": ["OnRootMismatch", "Always"]}
+    }}
+  }
+}

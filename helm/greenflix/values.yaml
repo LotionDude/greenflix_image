@@ -1,0 +1,39 @@
+replicaCount: 1
+image:
+  repository: greenflix
+  tag: "1.0.0"
+  digest: ""
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+admin:
+  existingSecret: ""
+  passwordHashKey: password-hash
+config:
+  existingConfigMap: ""
+  journalMode: DELETE
+  # Set true only after the actual PVC passes docs/storage-compatibility.md.
+  walVerified: false
+  busyTimeoutMs: 5000
+  poolSize: 4
+route:
+  enabled: true
+  host: ""
+  tls:
+    enabled: true
+    insecureEdgeTerminationPolicy: Redirect
+  annotations:
+    haproxy.router.openshift.io/timeout: 5m
+persistence:
+  existingClaim: ""
+  storageClassName: ""
+  accessMode: ReadWriteOncePod
+  size: 5Gi
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 1Gi
+# Let the OpenShift SCC assign an allowed supplemental group and SELinux label.
+podSecurityContext: {}
