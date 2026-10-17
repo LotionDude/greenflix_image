@@ -1,0 +1,15 @@
+{
+  "origin": "https://greenflix.internal.example:8443",
+  "mode": "normal",
+  "scanRootIsDisposableFixtureOnly": true,
+  "rootId": "REPLACE",
+  "fixtureMovieId": "REPLACE_WITH_EXPLICITLY_PUBLISHED_DISPOSABLE_MOVIE_ID",
+  "sampleRelativePath": "Acceptance.mp4",
+  "sourceUncRoot": "\\\\server\\legacy\\approved-fixture-only",
+  "ffprobeExe": "C:\\Greenflix\\tools\\ffprobe.exe",
+  "managedRootId": "REPLACE",
+  "managedReference": "managed-acceptance",
+  "managedDisposableDirectory": "\\\\server\\managed\\approved-disposable",
+  "maximumHashBytes": 268435456,
+  "resultFile": "C:\\ProgramData\\Greenflix\\acceptance\\smb-new.json"
+}

@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
-import { randomBytes, pbkdf2Sync } from 'node:crypto'
-import { mkdtemp, writeFile, rm, realpath } from 'node:fs/promises'
+import { randomBytes, pbkdf2Sync, createHash } from 'node:crypto'
+import { mkdtemp, writeFile, readFile, rm, realpath } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, basename, dirname } from 'node:path'
 import assert from 'node:assert/strict'
@@ -16,7 +16,7 @@ await writeFile(envFile, `GREENFLIX_ADMIN_PASSWORD_HASH=${hash}\n`, { mode: 0o60
 function docker(args, input) {
   const result = spawnSync('docker', args, { encoding: 'utf8', input, windowsHide: true, timeout: 90000 })
   if (result.status !== 0) throw new Error(`Docker ${args[0]} failed: ${(result.stderr || result.error?.message || '').slice(-1500)}`)
-  return result.stdout.trim()
+  return (args[0] === 'logs' ? result.stdout + result.stderr : result.stdout).trim()
 }
 async function ready(name) {
   const port = docker(['port', name, '8080/tcp']).split(':').at(-1)
@@ -55,6 +55,15 @@ try {
   for (const name of [volume, restored]) { docker(['volume', 'create', name]); volumes.add(name) }
   // Image has no build tools or Node runtime; filesystem starts read-only.
   assert.equal(docker(['run', '--rm', '--entrypoint', 'sh', image, '-c', 'command -v node || true']), '')
+  if (process.env.GREENFLIX_TEST_MEDIA) {
+    const fixture = process.env.GREENFLIX_TEST_MEDIA
+    assert.equal(createHash('sha256').update(await readFile(fixture)).digest('hex'), '3bb938fb70049e3e45f533b37ccae995ae96516e04c2f35b0c1142e47b2a39c1')
+    const metadata = JSON.parse(docker(['run', '--rm', '--user', '100123:0', '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--mount', `type=bind,source=${fixture},target=/fixture.mp4,readonly`, '--entrypoint', '/usr/local/bin/ffprobe', image, '-v', 'error', '-show_entries', 'stream=codec_name,width,height', '-of', 'json', '/fixture.mp4']))
+    assert.ok(metadata.streams.some(s => s.codec_name === 'h264' && s.width === 320)); assert.ok(metadata.streams.some(s => s.codec_name === 'aac'))
+  }
+  const noProbe = prefix + '-probe'; start(noProbe, volume, ['-e', 'GREENFLIX_FFPROBE_PATH=/intentionally-missing/ffprobe'])
+  assert.notEqual(docker(['wait', noProbe]), '0', 'Missing FFprobe must fail the container startup validation')
+  assert.match(docker(['logs', noProbe]), /FFprobe startup validation failed/)
   const missing = prefix + '-missing'; containers.add(missing)
   docker(['run', '-d', '--name', missing, '--env-file', envFile, image])
   assert.notEqual(docker(['wait', missing]), '0', 'Missing /data mount must fail')
@@ -66,12 +75,15 @@ try {
   assert.notEqual(docker(['wait', readOnly]), '0', 'Read-only storage must fail visibly')
   const app = prefix + '-app'; start(app, volume)
   let origin = await ready(app), client = await browser(origin)
+  const tool = (await client.call('/admin/library/discovery/probe-tool')).data
+  assert.equal(tool.state, 'AVAILABLE'); assert.match(tool.version, /^9\.0\.2/)
+  assert.equal((await fetch(origin + '/api/v1/admin/library/discovery/probe-tool')).status, 401)
   const created = await client.call('/admin/media', 'POST', { type: 'MOVIE', titleEn: 'Persistent backup fixture', titleHe: 'שלום', aliases: ['Durability alias'] })
   const id = created.data.id, exact = '\\\\fixture\\share\\סרטים\\Exact  Name.mkv'
   await client.call(`/admin/media/${id}/locations`, 'POST', { kind: 'FILE', uncPath: exact }, created.etag)
   const current = await client.call(`/admin/media/${id}`)
   await client.call(`/admin/media/${id}/publish`, 'POST', undefined, current.etag)
-  for (const path of ['/catalog', '/admin/media/' + id]) {
+  for (const path of ['/catalog', '/admin/media/' + id, '/admin/library/files', '/admin/library/matches', '/admin/library/imports', '/admin/library/storage', '/admin/system']) {
     const response = await fetch(origin + path, { headers: { Accept: 'text/html' } }); assert.equal(response.status, 200); assert.match(await response.text(), /id="root"/)
   }
   for (const path of ['/api/v1/missing', '/actuator/missing', '/assets/missing.js']) assert.equal((await fetch(origin + path, { headers: { Accept: 'text/html' } })).status, 404)

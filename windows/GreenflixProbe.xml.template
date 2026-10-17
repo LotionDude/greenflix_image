@@ -1,0 +1,20 @@
+<!-- Manual one-shot probe under the SAME intended identity as Greenflix.
+     Operator registration on the approved VM only. -->
+<service>
+  <id>GreenflixProbe</id>
+  <name>Greenflix identity probe</name>
+  <description>One-shot read-only SMB verification; remove after acceptance</description>
+  <executable>__POWERSHELL_EXE__</executable>
+  <arguments>-NoLogo -NoProfile -NonInteractive -File "__TOOLKIT_DIR__/Invoke-ServiceProbe.ps1" -ConfigFile "__LOCAL_PROBE_JSON__"</arguments>
+  <workingdirectory>__TOOLKIT_DIR__</workingdirectory>
+  <startmode>Manual</startmode>
+  <depend>LanmanWorkstation</depend>
+  <stoptimeout>45 sec</stoptimeout>
+  <serviceaccount>
+    <domain>__DOMAIN__</domain>
+    <user>__GMSA_NAME__$</user>
+    <allowservicelogon>false</allowservicelogon>
+  </serviceaccount>
+  <logpath>__PROTECTED_PROBE_LOG_DIR__</logpath>
+  <log mode="roll-by-size"><sizeThreshold>1024</sizeThreshold><keepFiles>2</keepFiles></log>
+</service>

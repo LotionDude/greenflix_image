@@ -1,0 +1,12 @@
+# Alternative to direct TLS only when an EXISTING approved organizational proxy is used.
+# Copy the root/library/import/backup/auth and mandatory secret import configuration from application.yml.template.
+# The proxy owns internal certificates and network ingress. This backend remains local to the VM.
+server:
+  address: 127.0.0.1
+  port: 8080
+  ssl:
+    enabled: false
+  forward-headers-strategy: none
+# Keep GREENFLIX_PUBLIC_ORIGIN equal to the external HTTPS origin.
+# Secure/HttpOnly/SameSite cookies and CSRF remain enabled by packaged defaults.
+# Do not expose :8080 remotely or enable arbitrary forwarded-header trust.

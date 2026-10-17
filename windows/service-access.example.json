@@ -1,0 +1,14 @@
+{
+  "ExpectedIdentitySid": "REPLACE_WITH_SERVICE_ACCOUNT_SID",
+  "Roots": [
+    { "Reference": "legacy-fixture", "Classification": "LEGACY", "Path": "\\\\server\\share\\approved-fixture", "RepresentativeMp4": "\\\\server\\share\\approved-fixture\\Acceptance.mp4" },
+    { "Reference": "managed-fixture", "Classification": "MANAGED", "Path": "\\\\server\\managed\\approved-disposable", "RepresentativeMp4": "\\\\server\\managed\\approved-disposable\\read-fixture.mp4" }
+  ],
+  "LocalDirectories": [
+    { "Reference": "binaries", "Path": "C:\\Greenflix\\service", "Writable": false },
+    { "Reference": "configuration", "Path": "C:\\ProgramData\\Greenflix\\config", "Writable": false },
+    { "Reference": "sqlite", "Path": "C:\\ProgramData\\Greenflix\\data", "Writable": true },
+    { "Reference": "native-temp", "Path": "C:\\ProgramData\\Greenflix\\temp", "Writable": true },
+    { "Reference": "backups", "Path": "C:\\ProgramData\\Greenflix\\backups", "Writable": true }
+  ]
+}

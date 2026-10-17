@@ -1,0 +1,23 @@
+# Use instead of compose.media.yaml. Volume provisioning is an operator action.
+# No credentials or driver_opts belong here. These volumes must already exist.
+services:
+  greenflix:
+    volumes:
+      - type: volume
+        source: legacy-smb
+        target: /media/legacy
+        read_only: true
+        volume:
+          nocopy: true
+      - type: volume
+        source: managed-smb
+        target: /media/managed
+        volume:
+          nocopy: true
+volumes:
+  legacy-smb:
+    external: true
+    name: ${GREENFLIX_LEGACY_VOLUME:?Set an externally provisioned legacy volume}
+  managed-smb:
+    external: true
+    name: ${GREENFLIX_MANAGED_VOLUME:?Set an externally provisioned managed volume}

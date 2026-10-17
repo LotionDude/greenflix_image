@@ -1,0 +1,9 @@
+{
+  "origin": "https://greenflix.internal.example:8443",
+  "storageKind": "SMB",
+  "assetIds": ["REPLACE_WITH_APPROVED_PUBLISHED_FIXTURE_ASSET_IDS"],
+  "seconds": 3600,
+  "mbpsPerViewer": 8,
+  "representativeMedia": true,
+  "resultFile": "C:\\ProgramData\\Greenflix\\acceptance\\load-new.json"
+}

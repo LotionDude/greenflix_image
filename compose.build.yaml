@@ -1,0 +1,7 @@
+services:
+  greenflix:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SOURCE_REVISION: ${GREENFLIX_SOURCE_REVISION:-local-unidentified}

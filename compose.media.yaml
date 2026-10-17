@@ -1,0 +1,16 @@
+# Compose paths resolve relative to the FIRST compose file (repository or bundle root).
+# Prepare host directories first. Linux: /srv/media/legacy ; Windows: D:/Media/Legacy
+services:
+  greenflix:
+    volumes:
+      - type: bind
+        source: ${GREENFLIX_LEGACY_DIR:?Set an approved legacy host directory}
+        target: /media/legacy
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${GREENFLIX_MANAGED_DIR:?Set an independently approved managed host directory}
+        target: /media/managed
+        bind:
+          create_host_path: false

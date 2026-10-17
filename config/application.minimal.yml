@@ -1,0 +1,21 @@
+# External configuration. Copy outside the immutable installation/image.
+# Set GREENFLIX_STATE_DIR to an absolute LOCAL directory; create it first.
+# Windows example: C:/ProgramData/Greenflix/data ; Docker: /data
+spring:
+  config:
+    import: 'configtree:${GREENFLIX_SECRETS_DIR}/'
+server:
+  address: 127.0.0.1
+  port: 8080
+greenflix:
+  state-directory: ${GREENFLIX_STATE_DIR}
+  storage:
+    url: 'jdbc:sqlite:${greenflix.state-directory}/greenflix.db'
+  auth:
+    password-hash: ${greenflix-admin-password-hash}
+  library:
+    approved-roots: []
+    imports:
+      write-approved-references: []
+# Loopback HTTP supports a local trial. Keep Secure cookies enabled; use trusted
+# HTTPS before remote administration. No roots, scans or managed writes enabled.

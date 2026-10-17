@@ -1,4 +1,14 @@
-# Single-pod OpenShift deployment
+# Deployment candidates
+
+Gate 7 native Windows deployment is the preferred candidate. Use the [complete operator runbook and measured acceptance matrix](../docs/gate7-production-readiness.md), `Build-Release.ps1`, the explicit Windows service scripts and `acceptance/` runners. Retained container/Helm tooling is optional. No target acceptance or deployment is implied by local tests.
+
+Gate 6: [managed imports](../docs/gate6-managed-imports.md) require explicit managed write configuration, separate administrator grants and confirmed jobs. Use `Upgrade-Gate6DevelopmentDatabase.ps1 -OfflineAdditiveGate6` for an existing Gate 5.5 V1 development database, retaining all old databases/backups. Do not rerun V8 consolidation or repair startup history. `node deploy/import-demo.mjs` uses isolated local fixture roots; target storage/service/load acceptance remains separate.
+
+Gate 5.5: fresh databases initialize from one complete V1. Existing development V8 databases must use the explicit [offline conversion](../docs/gate55-consolidation.md#development-transition) before this build starts; never repair history or enable clean/baseline. Media roots may be approved local or network directories, outside protected application/configuration/database trees. Windows SMB diagnostics below remain SMB-specific and do not select library management policy.
+
+For the approved V2 Windows desktop VM use the [native WinSW preparation runbook](windows/README.md) and [VM acceptance checklist](windows/ACCEPTANCE.md). The container/Helm procedures below remain a conditional candidate and historical V1 operations reference. They do not establish V2 SMB or unattended Windows startup feasibility. See [V2 architecture](../docs/v2-architecture.md).
+
+## Single-pod OpenShift deployment
 
 One Java 25 Spring Boot image serves the API and React bundle from JAR static resources. Node/Maven are build-only. The chart creates one Deployment/container, Service, optional Route, configuration and retained PVC; no Secret, autoscaler, migration job, backup job or supporting service. Route defaults to edge TLS and redirect using the router certificate; set `route.tls.enabled=false` for HTTP or `route.enabled=false` to omit the Route. Production admin access still requires HTTPS. External TLS ingress requires `config.existingConfigMap` with its exact HTTPS public origin. The platform owner must provide internal-only router/network ingress and a trusted TLS certificate: creating a Route does not itself restrict access. Local Compose instructions are in the [root README](../README.md).
 

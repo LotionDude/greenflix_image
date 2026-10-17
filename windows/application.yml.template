@@ -1,0 +1,58 @@
+# Copy as application.yml into the protected external configuration directory.
+# Populate privately; never commit the rendered file or certificates.
+greenflix:
+  state-directory: ${GREENFLIX_STATE_DIR}
+  backup:
+    enabled: true
+    enabled-protocols: TLSv1.2,TLSv1.3
+    directory: '__LOCAL_BACKUP_DIR__'
+    interval-seconds: 86400
+    retain: 14
+    stale-after-seconds: 172800
+    # external-directory: '\\approved-backup-server\protected-share\greenflix'
+  playback:
+    max-transfers: 32 # Keep until representative overlap/load measurements justify a change.
+  # Gate 6: also requires MANAGED classification, an admin write grant and explicit import confirmation.
+  # Configure dedicated OS/share rights: legacy READ, managed WRITE; never approve overlapping roots.
+  # Configure only explicitly approved directories outside installation/configuration/SQLite trees.
+  # Both local disks and ordinary UNC use these same roots; classification is selected in administration.
+  # library:
+  #   scanner:
+  #     ffprobe-path: '__FFPROBE_EXE__'
+  #   approved-roots:
+  #     - reference: movies
+  #       path: 'C:\Media\Movies'
+  #       revision: 1
+  #       comparison-mode: WINDOWS_INSENSITIVE
+  #     - reference: series
+  #       path: '\\server\share\series'
+  #       revision: 1
+  #       comparison-mode: WINDOWS_INSENSITIVE
+  #   imports:
+  #     write-approved-references: [] # Explicit approved MANAGED references only; admin grant still required.
+  #     concurrency: 1
+  #     buffer-bytes: 262144
+  #     bytes-per-second: 16777216
+  #     reserve-bytes: 268435456
+  auth:
+    password-hash: ${greenflix-admin-password-hash}
+    public-origin: https://__INTERNAL_DNS__:8443
+server:
+  address: __VM_INTERNAL_IP__
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: file:__CERTIFICATE_P12__
+    key-store-type: PKCS12
+    key-store-password: ${greenflix-tls-password}
+  shutdown: graceful
+spring:
+  config:
+    import: 'configtree:__PROTECTED_SECRETS_DIR__/'
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+logging:
+  level:
+    root: INFO
+    org.flywaydb: WARN
+    com.zaxxer.hikari: WARN

@@ -1,0 +1,9 @@
+services:
+  greenflix:
+    environment:
+      GREENFLIX_HEALTH_PORT: "8081"
+    secrets:
+      - greenflix-tls-password
+secrets:
+  greenflix-tls-password:
+    file: ${GREENFLIX_TLS_PASSWORD_FILE:?Set a protected TLS password file}

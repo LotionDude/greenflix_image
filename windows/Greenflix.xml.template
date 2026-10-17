@@ -1,0 +1,37 @@
+<!-- WinSW 2.12.0 x64. Render to a protected local Greenflix.xml, never commit it.
+     Replace __TOKENS__ with XML-escaped absolute local paths / account names.
+     Obtain the wrapper separately and verify its approved release checksum.
+     No -Xrs: WinSW's Ctrl+C must reach Java shutdown hooks. -->
+<service>
+  <id>Greenflix</id>
+  <name>Greenflix</name>
+  <description>Greenflix catalog, approved playback and managed copy imports</description>
+  <executable>__JAVA_EXE__</executable>
+  <arguments>--enable-native-access=ALL-UNNAMED -Xms128m -Xmx768m -XX:+ExitOnOutOfMemoryError -Djava.io.tmpdir="__TEMP_DIR__" -Dorg.sqlite.tmpdir="__TEMP_DIR__" -jar "__APP_JAR__" --spring.config.location="classpath:/application.yml,classpath:/application-distribution.yml,file:__CONFIG_DIR__/application.yml"</arguments>
+  <workingdirectory>__WORK_DIR__</workingdirectory>
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+  <depend>LanmanWorkstation</depend>
+  <stoptimeout>60 sec</stoptimeout>
+  <onfailure action="restart" delay="15 sec"/>
+  <onfailure action="restart" delay="60 sec"/>
+  <onfailure action="restart" delay="120 sec"/>
+  <onfailure action="none"/>
+  <resetfailure>1 hour</resetfailure>
+  <serviceaccount>
+    <domain>__DOMAIN__</domain>
+    <user>__GMSA_NAME__$</user>
+    <allowservicelogon>false</allowservicelogon>
+  </serviceaccount>
+  <logpath>__LOG_DIR__</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+  <env name="GREENFLIX_DATABASE_URL" value="jdbc:sqlite:__DATA_DIR__/__DATABASE_NAME__"/>
+  <env name="GREENFLIX_STATE_DIR" value="__DATA_DIR__"/>
+  <env name="GREENFLIX_SECRETS_DIR" value="__CONFIG_DIR__/secrets"/>
+  <env name="GREENFLIX_FFPROBE_PATH" value="__FFPROBE_EXE__"/>
+  <env name="GREENFLIX_JOURNAL_MODE" value="DELETE"/>
+  <env name="GREENFLIX_WAL_VERIFIED" value="false"/>
+</service>

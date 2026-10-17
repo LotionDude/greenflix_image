@@ -1,0 +1,93 @@
+# Complete shared contract. Copy externally as application.yml; edit ordinary YAML.
+# Create state, backup and secret directories with the dedicated runtime identity's ACLs.
+spring:
+  config:
+    import: 'configtree:${GREENFLIX_SECRETS_DIR}/'
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+server:
+  address: 0.0.0.0
+  port: 8443
+  shutdown: graceful
+  forward-headers-strategy: none
+  ssl:
+    enabled: true
+    enabled-protocols: TLSv1.2,TLSv1.3
+    key-store: 'file:${GREENFLIX_CERTIFICATE_FILE}'
+    key-store-type: PKCS12
+    key-store-password: ${greenflix-tls-password}
+# Optional same-process loopback HTTP readiness for Docker; never publish 8081.
+management:
+  server:
+    address: 127.0.0.1
+    port: 8081
+    ssl:
+      enabled: false
+greenflix:
+  state-directory: ${GREENFLIX_STATE_DIR}
+  storage:
+    url: 'jdbc:sqlite:${greenflix.state-directory}/greenflix.db'
+    journal-mode: DELETE
+    wal-verified: false
+    busy-timeout-ms: 5000
+    pool-size: 4
+  auth:
+    password-hash: ${greenflix-admin-password-hash}
+    public-origin: https://greenflix.internal:8443 # Must match the browser origin.
+  backup:
+    enabled: false # Explicitly approve storage and retention before enabling.
+    directory: ${GREENFLIX_STATE_DIR}/backups
+    # external-directory: /approved-backups # Windows UNC is also supported.
+    interval-seconds: 86400
+    stale-after-seconds: 172800
+    retain: 14
+  playback:
+    max-transfers: 32 # Twenty-client overlap remains a release blocker.
+  media:
+    # POSIX secure-open/probe/import requires EXCLUSIVE operator-controlled trees:
+    # no other writer may replace, rename, link or mutate content during operations.
+    # Approve and verify the real provider before opting in. Windows ignores this.
+    posix-immutable-tree: false
+  library:
+    # Startup never scans. Register matching runtimeRef values in Storage sources.
+    # Existing root IDs/associations are retained when an unchanged tree is remapped.
+    # Windows: D:/Media/Legacy or '\\server\share\movies'
+    # Keep the persisted comparison-mode and revision when relocating the SAME tree.
+    approved-roots: []
+    # - reference: legacy
+    #   path: /media/legacy
+    #   revision: 1
+    #   comparison-mode: SENSITIVE # Windows: WINDOWS_INSENSITIVE
+    scanner:
+      ffprobe-path: ${GREENFLIX_FFPROBE_PATH} # Bundled default on both platforms.
+      max-active-scans: 1
+      max-depth: 48
+      batch-size: 32
+      stability-seconds: 30
+      failure-backoff-seconds: 15
+      extensions: [mp4, m4v, mkv, mov, avi, webm]
+      includes: []
+      excludes: []
+      probe-timeout-seconds: 20
+      probe-capture-bytes: 262144
+      probe-concurrency: 1
+    imports:
+      write-approved-references: [] # Independent OS permission AND admin grant required.
+      concurrency: 1
+      buffer-bytes: 262144
+      bytes-per-second: 16777216
+      reserve-bytes: 268435456
+  throttle:
+    max-clients: 4096
+    login-minute: 5
+    login-hour: 30
+    login-global-minute: 30
+    submission-ten-minutes: 5
+    submission-hour: 20
+    submission-global-minute: 60
+logging:
+  level:
+    root: INFO
+    org.flywaydb: WARN
+    com.zaxxer.hikari: WARN
+# Console output is rotated by Docker/WinSW. Do not enable request/body/SQL tracing.

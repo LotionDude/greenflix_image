@@ -1,0 +1,12 @@
+{
+  "InstallRoot": "C:\\Greenflix",
+  "StateRoot": "C:\\ProgramData\\Greenflix",
+  "ReleaseDirectory": "C:\\Greenflix\\releases\\2.0.0-rc.1",
+  "JavaExe": "C:\\Greenflix\\runtime\\jdk-25.0.4.1+1-jre\\bin\\java.exe",
+  "FfprobeExe": "C:\\Greenflix\\tools\\ffprobe.exe",
+  "ServiceAccount": "DOMAIN\\GreenflixSvc$",
+  "ExpectedIdentitySid": "REPLACE_WITH_SERVICE_SID",
+  "Origin": "https://greenflix.internal.example:8443",
+  "TlsMode": "Direct",
+  "DatabaseFileName": "greenflix.db"
+}

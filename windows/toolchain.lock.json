@@ -1,0 +1,16 @@
+{
+  "java": {
+    "vendor": "Eclipse Temurin",
+    "version": "25.0.4.1+1-LTS",
+    "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1/OpenJDK25U-jre_x64_windows_hotspot_25.0.4.1_1.zip",
+    "archiveSha256": "4c95451cea98556def2c54f7782933f52a26d4a36bd85e1d59f0364464828b07",
+    "javaExeSha256": "5808527e3dfc4eb285c7664ba356bc267055ef906e83ed4660d9f7976da7349b"
+  },
+  "winsw": {
+    "version": "2.12.0",
+    "url": "https://github.com/winsw/winsw/releases/download/v2.12.0/WinSW-x64.exe",
+    "sha256": "05b82d46ad331cc16bdc00de5c6332c1ef818df8ceefcd49c726553209b3a0da"
+  },
+  "ffprobe": { "version": "9.0.2", "sha256": "f0d36ecbbdd3bcfac3efa078c96c7271c2e68b3810595552ac3b7f17e9a65c52", "archiveSha256": "60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba" },
+  "build": { "javaMajor": 25, "jpackage": "25.0.2", "maven": "3.9.11", "node": "24.21.0", "npm": "11.19.0", "boot": "4.1.1" }
+}
